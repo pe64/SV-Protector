@@ -1,9 +1,12 @@
+#include <linux/fs.h>
 #include <linux/ftrace.h>
 #include <linux/kprobes.h>
 #include <asm/unistd.h>
 
+#include "priv.h"
+
 MODULE_DESCRIPTION("defense and modify file to protect");
-MODULE_AUTHOR("alert7 (alert7@xfocus.org) \n\t\talbcamus <albcamus@gmail.com>");
+MODULE_AUTHOR("wang_xuefei <wxf_happylife@163.com>");
 MODULE_LICENSE("GPL");
 
 
@@ -83,7 +86,6 @@ unsigned int can_intercept_fork_exec(void)
 
 	dbgprint("do_execve at %p\n", (void *)kp_exec.addr);
 	unregister_kprobe(&kp_exec);
-
 
 	return 1;
 }
@@ -295,26 +297,29 @@ static int intercept_init(void)
 
 static int __init this_init(void)
 {
-	int ret;
+	//int ret;
 	printk("syscall intercept: Hi, poor linux!\n");
 
-	orig_cr0 = clear_and_return_cr0(); 
-	ret = intercept_init();
-	setback_cr0(orig_cr0);
+	//orig_cr0 = clear_and_return_cr0(); 
+	//ret = intercept_init();
+	//setback_cr0(orig_cr0);
 
-	return ret;
+	return 0;
 }
 
 static void __exit this_fini(void)
 {
+
 	printk("syscall intercept: bye, poor linux!\n");
 
+	file_init();
+	process_init();
 #define RESTORE(x) my_table[__NR_##x] = old_##x
 
-	orig_cr0 = clear_and_return_cr0(); 
-	if(can_exec_fork == 1)
-		RESTORE(execve);
-	setback_cr0(orig_cr0);
+	//orig_cr0 = clear_and_return_cr0(); 
+	//if(can_exec_fork == 1)
+	//	RESTORE(execve);
+	//setback_cr0(orig_cr0);
 
 #undef RESTORE
 }
