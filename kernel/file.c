@@ -1,4 +1,5 @@
 #include <asm/unistd.h>
+#include <linux/kernel.h>
 #include <linux/printk.h>
 
 #include "priv.h"
