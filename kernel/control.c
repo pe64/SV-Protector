@@ -2,8 +2,8 @@
 #include <linux/kprobes.h>
 #include <asm/unistd.h>
 
-MODULE_DESCRIPTION("Intercept the system call table in Linux");
-MODULE_AUTHOR("alert7 (alert7@xfocus.org) \n\t\talbcamus <albcamus@gmail.com>");
+MODULE_DESCRIPTION("Delete and modify the control file, and send a message when the process exits.");
+MODULE_AUTHOR("wang_xuefei <wxf_happylife@163.com>");
 MODULE_LICENSE("GPL");
 static int __init this_init(void)
 {
