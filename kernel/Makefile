@@ -1,5 +1,5 @@
 obj-m += sv_protect.o
-sv_protect-objs := control.o netlink.o process.o
+sv_protect-objs := control.o netlink.o process.o file.o
 #generate the path
 CURRENT_PATH:=$(shell pwd)
 #the current kernel version number
