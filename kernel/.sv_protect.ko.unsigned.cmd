@@ -1,0 +1,1 @@
+cmd_/root/github/sv_protect/kernel/sv_protect.ko.unsigned := ld -r -m elf_i386 -T /usr/src/kernels/2.6.32-573.26.1.el6.i686/scripts/module-common.lds --build-id -o /root/github/sv_protect/kernel/sv_protect.ko.unsigned /root/github/sv_protect/kernel/sv_protect.o /root/github/sv_protect/kernel/sv_protect.mod.o 

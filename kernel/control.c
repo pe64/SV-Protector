@@ -2,7 +2,7 @@
 #include <linux/kprobes.h>
 #include <asm/unistd.h>
 
-MODULE_DESCRIPTION("Intercept the system call table in Linux");
+MODULE_DESCRIPTION("defense and modify file to protect");
 MODULE_AUTHOR("alert7 (alert7@xfocus.org) \n\t\talbcamus <albcamus@gmail.com>");
 MODULE_LICENSE("GPL");
 
@@ -57,13 +57,6 @@ struct idt {
 	unsigned short off2;
 } __attribute__ ((packed));
 
-
-
-/**
- * * check if we can intercept fork/vfork/clone/execve or not
- * *
- * * return : 0 for no, 1 for yes
- * */
 struct kprobe kp_exec;
 unsigned int can_intercept_fork_exec(void)
 {
@@ -107,7 +100,7 @@ unsigned int clear_and_return_cr0(void)
 
 	asm volatile ("movl %%cr0, %%eax"
 			: "=a"(cr0)
-		     );
+			);
 	ret = cr0;
 
 	/* clear the 20 bit of CR0, a.k.a WP bit */
@@ -116,7 +109,7 @@ unsigned int clear_and_return_cr0(void)
 	asm volatile ("movl %%eax, %%cr0"
 			:
 			: "a"(cr0)
-		     );
+			);
 	return ret;
 }
 
@@ -129,7 +122,7 @@ void setback_cr0(unsigned int val)
 	asm volatile ("movl %%eax, %%cr0"
 			:
 			: "a"(val)
-		     );
+			);
 }
 
 
@@ -207,9 +200,10 @@ static unsigned long get_sys_call_table(void)
 
 	retval = *(unsigned *) (p + 3);
 	if (p) {
-		dbgprint("sys_call_table at 0x%x, call dispatch at 0x%x\n",
-				retval, (unsigned int) p);
+		dbgprint("sys_call_table at 0x%x, call "
+				"dispatch at 0x%x\n",retval, (unsigned int) p);
 	}
+
 	return retval;
 #undef OFFSET_SYSCALL
 }/*}}}*/

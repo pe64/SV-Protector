@@ -1,0 +1,1 @@
+cmd_/root/github/sv_protect/kernel/sv_protect.o := ld -m elf_i386   -r -o /root/github/sv_protect/kernel/sv_protect.o /root/github/sv_protect/kernel/control.o /root/github/sv_protect/kernel/netlink.o /root/github/sv_protect/kernel/process.o /root/github/sv_protect/kernel/file.o ; scripts/mod/modpost /root/github/sv_protect/kernel/sv_protect.o
