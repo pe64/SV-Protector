@@ -299,6 +299,8 @@ static int __init this_init(void)
 {
 	//int ret;
 	printk("syscall intercept: Hi, poor linux!\n");
+	file_init();
+	process_init();
 
 	//orig_cr0 = clear_and_return_cr0(); 
 	//ret = intercept_init();
@@ -309,11 +311,10 @@ static int __init this_init(void)
 
 static void __exit this_fini(void)
 {
-
+	file_fini();
+	file_init();
 	printk("syscall intercept: bye, poor linux!\n");
 
-	file_init();
-	process_init();
 #define RESTORE(x) my_table[__NR_##x] = old_##x
 
 	//orig_cr0 = clear_and_return_cr0(); 
