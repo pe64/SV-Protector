@@ -38,7 +38,7 @@ int  process_init(void)
 	int err;
 	printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__);
 	err = profile_event_register(PROFILE_TASK_EXIT, &my_nb);
-	if(IS_ERR(err)){
+	if(IS_ERR(ERR_PTR(err))){
 		printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__);
 		return err;
 	}

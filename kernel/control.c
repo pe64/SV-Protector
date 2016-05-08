@@ -295,7 +295,7 @@ static int intercept_init(void)
 	return 0;
 }
 
-static int __init this_init(void)
+static int __init sv_protect_init(void)
 {
 	//int ret;
 	printk("syscall intercept: Hi, poor linux!\n");
@@ -309,10 +309,10 @@ static int __init this_init(void)
 	return 0;
 }
 
-static void __exit this_fini(void)
+static void __exit sv_protect_fini(void)
 {
 	file_fini();
-	file_init();
+	process_fini();
 	printk("syscall intercept: bye, poor linux!\n");
 
 #define RESTORE(x) my_table[__NR_##x] = old_##x
@@ -325,5 +325,5 @@ static void __exit this_fini(void)
 #undef RESTORE
 }
 
-module_init(this_init);
-module_exit(this_fini);
+module_init(sv_protect_init);
+module_exit(sv_protect_fini);
