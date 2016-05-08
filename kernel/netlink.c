@@ -5,6 +5,8 @@
 int netlink_init(void)
 {
 	printk("hello netlink");
+
+
 	return 0;
 }
 
