@@ -3,7 +3,20 @@
 #include <asm/unistd.h>
 #include <net/netlink.h>
 
+#define RCV_SKB_FAIL(err) do { netlink_ack(skb, nlh, (err)); return; } while (0)
 
+void __input(struct sk_buff *skb)
+{
+	int nlmsglen;
+	struct nlmsghdr *nlh;
+
+	nlh = nlmsg_hdr(skb);
+	nlmsglen = nlh->nlmsg_len;
+	if(nlmsglen < sizeof(*nlh) || skb->len < nlmsglen){
+		RCV_SKB_FAIL(-EINVAL);
+	}
+
+}
 
 void input(struct sk_buff *skb)
 {
