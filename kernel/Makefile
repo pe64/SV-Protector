@@ -1,3 +1,6 @@
+
+EXTRA_CFLAGS += -I/root/github/sv_protect/include
+
 obj-m += sv_protect.o
 sv_protect-objs := control.o netlink.o process.o file.o
 #generate the path

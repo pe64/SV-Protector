@@ -32,7 +32,7 @@ int init_netlink_socket(struct sockaddr_nl *nl_addr)
 		return 0;
 	}
 
-	sk_netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_PROTECT);
+	sk_netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_SV_PROTECT);
 	if(sk_netlink_fd <= 0){
 		return sk_netlink_fd;
 	}
