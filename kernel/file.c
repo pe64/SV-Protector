@@ -7,12 +7,17 @@
 const struct file_operations *get_file_operations(char *path)
 {
 	struct file *filp;
+	struct file_operations *f_op;
 	filp = filp_open(path, O_RDWR, 0644);
 	if(IS_ERR(filp)){
 		return NULL;
 	}
+	
+	f_op = (struct file_operations *)filp->f_op;
 
-	return filp->f_op;
+	filp_close(filp, 0);
+
+	return f_op;
 }
 
 
