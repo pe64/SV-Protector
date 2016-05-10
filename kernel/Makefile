@@ -1,5 +1,5 @@
 
-EXTRA_CFLAGS += -I/root/github/sv_protect/include
+EXTRA_CFLAGS += -I/root/github/SV-Protector/include
 
 obj-m += sv_protect.o
 sv_protect-objs := control.o netlink.o process.o file.o

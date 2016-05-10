@@ -1,0 +1,25 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.63)
+AC_INIT(framework, 0.0.1, 55121593@qq.com)
+AC_CONFIG_SRCDIR
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(framework, 0.0.1)
+# Checks for programs.
+AC_PROG_CC(gcc)
+
+# Checks for libraries.
+# FIXME: Replace `main' with a function in `-ldl':
+
+# Checks for header files.
+AC_CHECK_HEADERS(arpa/inet.h fcntl.h float.h limits.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h)
+AC_PROG_RANLIB
+# Checks for typedefs, structures, and compiler characteristics.
+
+# Checks for library functions.
+AC_CHECK_FUNCS(floor gethostbyname memset munmap pow socket strchr strstr)
+
+AC_CONFIG_SUBDIRS
+AC_OUTPUT(Makefile
+service/Makefile)

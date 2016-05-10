@@ -1,0 +1,9 @@
+bin_PROGRAMS=sv_protectd
+sv_protectd_SOURCES=main.c netlink.c sendmsg.c
+#sv_protectd_LDADD=$(top_srcdir)/lib/log/liblog.a
+#sv_protectd_LDFLAGS= -ldl 
+#sv_protectd_LDFLAGS+= -L$(top_srcdir)/server/sys_mod/transfercall/
+#sv_protectd_LDFLAGS+= -L$(top_srcdir)/server/sys_mod/invokeproxy/
+#sv_protectd_LDFLAGS+= -L$(top_srcdir)/server/sys_mod/threadpool/
+#sv_protectd_LDFLAGS+= -ltransfercall -linvokeproxy -lthreadpool -llog4c
+INCLUDES=-I$(top_srcdir)/include
