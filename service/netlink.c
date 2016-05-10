@@ -80,49 +80,40 @@ out:
 	return nlh;
 }
 
-
-int deal_with(Comm::ConnectionPointer client, int server_fd)
-{
-	socklen_t addr_len;
-	struct nlmsghdr *nlh;
-	struct iovec iov;
-	struct msghdr msg;
-	sqnl_msg_st *sqnl;
-	int ret;
-
-	if(!sk_netlink_fd){
-		ret = init_netlink_socket();
-		if(ret == SQUID_ERROR){
-			return ret;
-		}
-	}
-
-	bzero(&msg, sizeof(struct msghdr));
-	bzero(&iov, sizeof(struct iovec));
-
-	addr_len = sizeof(struct sockaddr_in);
-
-	nlh = build_netlink_msg(&msg, &iov);
-	if(!nlh){
-		return SQUID_ERROR;
-	}
-
-	sqnl = (sqnl_msg_st *)NLMSG_DATA(nlh);
-
-	getsockname(server_fd, (struct sockaddr *)&sqnl->server_local_addr, &addr_len);
-	getpeername(server_fd, (struct sockaddr *)&sqnl->server_peer_addr, &addr_len);
-	client->remote.getSockAddr(sqnl->client_peer_addr);
-	client->local.getSockAddr(sqnl->client_local_addr);
-
-	printf("[%s][%d]-[%s]\n",__FILE__,__LINE__,__func__);
-	printf("s_local_addr = %s:%d\n",inet_ntoa(sqnl->server_local_addr.sin_addr),ntohs(sqnl->server_local_addr.sin_port));
-	printf("s_peer_addr = %s:%d\n",inet_ntoa(sqnl->server_peer_addr.sin_addr),  ntohs(sqnl->server_peer_addr.sin_port));
-	printf("c_peer_addr = %s:%d\n",inet_ntoa(sqnl->client_peer_addr.sin_addr),  ntohs(sqnl->client_peer_addr.sin_port));
-	printf("c_local_addr = %s:%d\n",inet_ntoa(sqnl->client_local_addr.sin_addr),ntohs(sqnl->client_local_addr.sin_port));
-	printf("[%s][%d]-[%s]\n",__FILE__,__LINE__,__func__);
-
-	sendmsg(sk_netlink_fd, &msg, 0);
-	printf("[%s][%d]-[%s]\n",__FILE__,__LINE__,__func__);
-	return SQUID_OK;
-}
+//
+//int deal_with(Comm::ConnectionPointer client, int server_fd)
+//{
+//	socklen_t addr_len;
+//	struct nlmsghdr *nlh;
+//	struct iovec iov;
+//	struct msghdr msg;
+//	sqnl_msg_st *sqnl;
+//	int ret;
+//	int sk_netlink_fd;
+//
+//	sk_netlink_fd = init_netlink_socket();
+//
+//	if(!sk_netlink_fd){
+//		return 
+//	}
+//
+//	bzero(&msg, sizeof(struct msghdr));
+//	bzero(&iov, sizeof(struct iovec));
+//
+//	addr_len = sizeof(struct sockaddr_in);
+//
+//	nlh = build_netlink_msg(&msg, &iov);
+//	if(!nlh){
+//		return SQUID_ERROR;
+//	}
+//
+//	sqnl = (sqnl_msg_st *)NLMSG_DATA(nlh);
+//
+//	getsockname(server_fd, (struct sockaddr *)&sqnl->server_local_addr, &addr_len);
+//	getpeername(server_fd, (struct sockaddr *)&sqnl->server_peer_addr, &addr_len);
+//	
+//	sendmsg(sk_netlink_fd, &msg, 0);
+//	printf("[%s][%d]-[%s]\n",__FILE__,__LINE__,__func__);
+//	return SQUID_OK;
+//}
 
