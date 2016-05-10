@@ -4,6 +4,16 @@
 
 #include "priv.h"
 
+const struct file_operations *get_file_operations(char *path)
+{
+	struct file *filp;
+	filp = filp_open(path, O_RDWR, 0644);
+	if(IS_ERR(filp)){
+		return NULL;
+	}
+
+	return filp->f_op;
+}
 
 
 int file_init(void)
