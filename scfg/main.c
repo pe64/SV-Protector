@@ -127,7 +127,7 @@ void link_dir(char *sdir, char* ddir)
 				!strcmp(dirattr->d_name, ".."))
 			continue;
 
-		if(!strcmp(dirattr->d_name, ".svn")) {
+		if(!strcmp(dirattr->d_name, ".git")) {
 			continue;
 		}
 

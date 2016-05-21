@@ -1,6 +1,8 @@
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <asm/types.h>
 #include <linux/netlink.h>
+#include "sv_netlink.h"
 
 #define BIND_NLADDR_FLAGS 0
 #define SEND_NLADDR_FLAGS 1
@@ -28,7 +30,7 @@ int init_netlink_socket(struct sockaddr_nl *nl_addr)
 {
 	int sk_netlink_fd;
 	
-	if(!addr){
+	if(!nl_addr){
 		return 0;
 	}
 
@@ -57,20 +59,20 @@ struct nlmsghdr *build_netlink_msg(struct msghdr *msg, struct iovec *iov)
 		goto out;
 	}
 
-	nlh = (struct nlmsghdr *)malloc(NLMSG_SPACE(sizeof(sqnl_msg_st)));
+	nlh = (struct nlmsghdr *)malloc(NLMSG_SPACE(sizeof(svnetlink_nlmsg_st)));
 	if(!nlh){
 		goto out;
 	}
 
-	bzero(nlh, NLMSG_SPACE(sizeof(sqnl_msg_st)));
+	bzero(nlh, NLMSG_SPACE(sizeof(svnetlink_nlmsg_st)));
 
-	nlh->nlmsg_len = NLMSG_SPACE(sizeof(sqnl_msg_st));
+	nlh->nlmsg_len = NLMSG_SPACE(sizeof(svnetlink_nlmsg_st));
 	nlh->nlmsg_pid = getpid();
 
 	iov->iov_base = nlh;
 	iov->iov_len = nlh->nlmsg_len;
 
-	msg->msg_name = nl_addr;
+	msg->msg_name = send_addr;
 	msg->msg_namelen = sizeof(struct sockaddr_nl);
 	msg->msg_iov = iov;
 	msg->msg_iovlen = 1;
@@ -87,7 +89,7 @@ out:
 //	struct nlmsghdr *nlh;
 //	struct iovec iov;
 //	struct msghdr msg;
-//	sqnl_msg_st *sqnl;
+//	svnetlink_nlmsg_st *sqnl;
 //	int ret;
 //	int sk_netlink_fd;
 //
@@ -107,7 +109,7 @@ out:
 //		return SQUID_ERROR;
 //	}
 //
-//	sqnl = (sqnl_msg_st *)NLMSG_DATA(nlh);
+//	sqnl = (svnetlink_nlmsg_st *)NLMSG_DATA(nlh);
 //
 //	getsockname(server_fd, (struct sockaddr *)&sqnl->server_local_addr, &addr_len);
 //	getpeername(server_fd, (struct sockaddr *)&sqnl->server_peer_addr, &addr_len);

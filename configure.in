@@ -21,5 +21,4 @@ AC_PROG_RANLIB
 AC_CHECK_FUNCS(floor gethostbyname memset munmap pow socket strchr strstr)
 
 AC_CONFIG_SUBDIRS
-AC_OUTPUT(Makefile
-service/Makefile)
+AC_OUTPUT( service/Makefile)
