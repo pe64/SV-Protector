@@ -20,6 +20,8 @@ static void __input(struct sk_buff *skb)
 	if(nlmsglen < sizeof(*nlh) || skb->len < nlmsglen){
 		RCV_SKB_FAIL(-EINVAL);
 	}
+	printk("file:%s,line:%d\n",__FILE__,__LINE__);
+
 }
 
 static void input(struct sk_buff *skb)
@@ -29,13 +31,13 @@ static void input(struct sk_buff *skb)
 	mutex_unlock(&sv_mutex);
 }
 
-int netlink_init(void)
+int sv_netlink_init(void)
 {
-	printk("hello netlink");
+	printk("hello netlink\n");
 	
 	sk = netlink_kernel_create(&init_net, NETLINK_SV_PROTECT, 1, input, NULL, THIS_MODULE);
 	if(!sk){
-		printk("netlink create error !!!!");
+		printk("netlink create error !!!!\n");
 	}
 
 	return 0;

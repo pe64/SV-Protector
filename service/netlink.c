@@ -4,8 +4,7 @@
 #include <linux/netlink.h>
 #include "sv_netlink.h"
 
-#define BIND_NLADDR_FLAGS 0
-#define SEND_NLADDR_FLAGS 1
+#include "priv.h"
 
 struct sockaddr_nl *
 init_sockaddr_nl_object(int flags)
@@ -31,11 +30,13 @@ int init_netlink_socket(struct sockaddr_nl *nl_addr)
 	int sk_netlink_fd;
 	
 	if(!nl_addr){
+		printf("file:%s,line:%d\n",__FILE__,__LINE__);
 		return 0;
 	}
 
-	sk_netlink_fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_SV_PROTECT);
+	sk_netlink_fd = socket(AF_NETLINK, SOCK_RAW, 19);//NETLINK_SV_PROTECT);
 	if(sk_netlink_fd <= 0){
+		perror("scoket");
 		return sk_netlink_fd;
 	}
 
@@ -44,6 +45,7 @@ int init_netlink_socket(struct sockaddr_nl *nl_addr)
 		sk_netlink_fd = 0;
 	}
 
+	printf("file:%s,line:%d\n",__FILE__,__LINE__);
 	return sk_netlink_fd;
 }
 

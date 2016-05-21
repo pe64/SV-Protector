@@ -301,6 +301,7 @@ static int __init sv_protect_init(void)
 	printk("syscall intercept: Hi, poor linux!\n");
 	file_init();
 	process_init();
+	sv_netlink_init();
 
 	//orig_cr0 = clear_and_return_cr0(); 
 	//ret = intercept_init();

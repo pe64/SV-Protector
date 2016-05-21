@@ -5,6 +5,7 @@ extern int file_init(void);
 extern void file_fini(void);
 extern int process_init(void);
 extern void process_fini(void);
+extern int sv_netlink_init(void);
 
 typedef int (*KERNEL_SYSCALL_PROC)(void *args);
 
