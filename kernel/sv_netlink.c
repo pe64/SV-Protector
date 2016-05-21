@@ -3,7 +3,7 @@
 #include <asm/unistd.h>
 #include <net/netlink.h>
 #include <net/inet_sock.h>
-#include "netlink.h"
+#include "sv_netlink.h"
 
 #define RCV_SKB_FAIL(err) do { netlink_ack(skb, nlh, (err)); return; } while (0)
 
