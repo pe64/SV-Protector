@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <asm/types.h>
 #include <linux/netlink.h>
@@ -49,7 +51,8 @@ int init_netlink_socket(struct sockaddr_nl *nl_addr)
 	return sk_netlink_fd;
 }
 
-struct nlmsghdr *build_netlink_msg(struct msghdr *msg, struct iovec *iov)
+struct nlmsghdr *
+build_netlink_msg(struct msghdr *msg, struct iovec *iov)
 {
 	struct nlmsghdr *nlh;
 	struct sockaddr_nl *send_addr;
@@ -78,10 +81,13 @@ struct nlmsghdr *build_netlink_msg(struct msghdr *msg, struct iovec *iov)
 	msg->msg_namelen = sizeof(struct sockaddr_nl);
 	msg->msg_iov = iov;
 	msg->msg_iovlen = 1;
+	return nlh;
 out:
+	if(nlh)
+		free(nlh);
 	if(send_addr)
 		free(send_addr);
-	return nlh;
+	return NULL;
 }
 
 //

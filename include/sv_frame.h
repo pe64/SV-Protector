@@ -7,10 +7,10 @@ enum {
 };
 
 enum {
-	SV_ERR_SYSCALL_ID_ERROR;
+	SV_ERR_SYSCALL_ID_ERROR,
 };
 
-char *s_err_table[] = {
+static char *s_err_table[] = {
 	"syscall id error!!",
 };
 

@@ -314,6 +314,7 @@ static void __exit sv_protect_fini(void)
 {
 	file_fini();
 	process_fini();
+	sv_netlink_fini();
 	printk("syscall intercept: bye, poor linux!\n");
 
 #define RESTORE(x) my_table[__NR_##x] = old_##x

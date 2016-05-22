@@ -2,7 +2,7 @@
 EXTRA_CFLAGS += -I/root/github/SV-Protector/include
 
 obj-m += sv_protect.o
-sv_protect-objs := sv_control.o sv_netlink.o sv_process.o sv_file.o
+sv_protect-objs := sv_control.o sv_netlink.o sv_process.o sv_file.o sv_frame.o
 #generate the path
 CURRENT_PATH:=$(shell pwd)
 #the current kernel version number

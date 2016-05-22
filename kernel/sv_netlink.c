@@ -3,7 +3,9 @@
 #include <asm/unistd.h>
 #include <net/netlink.h>
 #include <net/inet_sock.h>
+
 #include "sv_netlink.h"
+#include "priv.h"
 
 #define RCV_SKB_FAIL(err) do { netlink_ack(skb, nlh, (err)); return; } while (0)
 
@@ -14,6 +16,7 @@ static void __input(struct sk_buff *skb)
 {
 	int nlmsglen;
 	struct nlmsghdr *nlh;
+	svnetlink_nlmsg_st *data;
 
 	nlh = nlmsg_hdr(skb);
 	nlmsglen = nlh->nlmsg_len;
@@ -21,7 +24,10 @@ static void __input(struct sk_buff *skb)
 		RCV_SKB_FAIL(-EINVAL);
 	}
 	printk("file:%s,line:%d\n",__FILE__,__LINE__);
+	
+	data = (svnetlink_nlmsg_st *)NLMSG_DATA(nlh);
 
+	svframe_invoke_syscall(data->cid, (void *)&data->pos);
 }
 
 static void input(struct sk_buff *skb)
@@ -43,7 +49,7 @@ int sv_netlink_init(void)
 	return 0;
 }
 
-void netlink_fini(void)
+void sv_netlink_fini(void)
 {
 	if(sk){
 		netlink_kernel_release(sk);
