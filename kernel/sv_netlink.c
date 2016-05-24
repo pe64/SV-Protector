@@ -15,6 +15,7 @@ static DEFINE_MUTEX(sv_mutex);
 static void __input(struct sk_buff *skb)
 {
 	int nlmsglen;
+	int ret;
 	struct nlmsghdr *nlh;
 	svnetlink_nlmsg_st *data;
 
@@ -27,7 +28,8 @@ static void __input(struct sk_buff *skb)
 	
 	data = (svnetlink_nlmsg_st *)NLMSG_DATA(nlh);
 
-	svframe_invoke_syscall(data->cid, (void *)&data->pos);
+	ret = svframe_invoke_syscall(data->cid, (void *)&data->pos);
+	//netlink_sendmsg(ret, NETLINK_CB(skb).pid, NETLINK_CB(skb).group);
 }
 
 static void input(struct sk_buff *skb)

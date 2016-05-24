@@ -7,6 +7,11 @@ enum {
 };
 
 enum {
+	SV_RID_ADD_PROTECT_FILE,
+	SV_RID_MAX,
+};
+
+enum {
 	SV_ERR_SYSCALL_ID_ERROR,
 };
 

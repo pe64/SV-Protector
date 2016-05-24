@@ -26,6 +26,7 @@ const struct file_operations *get_file_operations(char *path)
 int svfile_add_protect_file(svfile_u2k_args_st *args)
 {
 	printk("[%s][%d] file[%s]\n",__FILE__,__LINE__, args->file_name);
+
 	return SV_OK;
 }
 
