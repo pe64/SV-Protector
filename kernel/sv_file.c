@@ -3,6 +3,7 @@
 #include <linux/fs.h>
 #include <linux/gfp.h>
 #include <linux/slob_def.h>
+#include <linux/list.h>
 
 #include "sv_base.h"
 #include "sv_file.h"
