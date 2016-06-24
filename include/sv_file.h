@@ -2,22 +2,29 @@
 #define SV_FILE_H
 
 //#include <linux/list.h>
-#include <linux/types.h>
-#include <linux/coda.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+//#include <linux/coda.h>
+
+enum {
+	SV_FILE_REQ_START,
+	SV_FILE_REQ_ADD,
+	SV_FILE_REQ_DEL,
+	SV_FILE_REQ_LIST,
+	SV_FILE_REQ_MAX,
+};
 
 typedef struct {
 	char file_name[256];
 	ino_t inode;
 	pid_t pid;
 	int flags;
-}svfile_u2k_args_st;
+}svfile_set_st;
 
 typedef struct {
-	int err;
 	char file_name[256];
 	ino_t inode;
-	int index;
-}svfile_k2u_ret_st;
-
+	void *next;
+}svfile_get_st;
 
 #endif

@@ -5,7 +5,7 @@ typedef int (*KERNEL_SYSCALL_PROC)(void *args);
 
 typedef struct {
 	char *name;
-	int cid;
+	int syscall_id;
 	KERNEL_SYSCALL_PROC proc;
 }sv_syscall_ops_st;
 

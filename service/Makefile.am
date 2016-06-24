@@ -1,5 +1,5 @@
 bin_PROGRAMS=sv_protectd
-sv_protectd_SOURCES=main.c netlink.c syscall.c
+sv_protectd_SOURCES=main.c syscall.c
 #sv_protectd_LDADD=$(top_srcdir)/lib/log/liblog.a
 #sv_protectd_LDFLAGS= -ldl 
 #sv_protectd_LDFLAGS+= -L$(top_srcdir)/server/sys_mod/transfercall/

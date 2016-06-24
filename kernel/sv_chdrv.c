@@ -22,18 +22,17 @@ chdev_mmap(struct file * filp, struct vm_area_struct *vma)
 	return -1;
 }
 
-static size_t chdev_write(struct file * file, char __user * buf, 
-		size_t count, loff_t *pos)
+static ssize_t 
+chdev_write(struct file * file, const char __user * buf, 
+		size_t count, loff_t *pos) 
 {
 	*pos = *pos + count;
 	return count;
 }
 
-size_t 
-chdev_read(struct file * file, 
-		char __user * buf, 
-		size_t count, 
-		loff_t *pos)
+static ssize_t 
+chdev_read(struct file * file, char __user * buf, 
+		size_t count, loff_t *pos) 
 {
 	*pos = *pos + count;
 	return count;
@@ -63,7 +62,8 @@ chdev_release(struct inode * inode, struct file * file)
 }
 
 static long 
-chdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+chdev_ioctl(struct file *file, 
+		unsigned int cmd, unsigned long arg)
 {
 	return 0;
 }
@@ -82,15 +82,15 @@ static struct file_operations chdev_fops = {
 int chdev_init(void)
 {
 	printk("[%s][%d]-[%s]\n",__FILE__,__LINE__,__func__); 
-	register_chrdev(PXDEV_MAJOR, "chdev", &chdev_fops);
+	register_chrdev(PXDEV_MAJOR, "sv_chdev", &chdev_fops);
 	chdev_class = class_create(THIS_MODULE, "chdev_class");
-	device_create(chdev_class, NULL, MKDEV(PXDEV_MAJOR, 0), NULL, "chdev");
+	device_create(chdev_class, NULL, MKDEV(PXDEV_MAJOR, 0), NULL, "sv_chdev");
 	return 0;
 }
 
 void chdev_fini(void)
 {
-	unregister_chrdev(PXDEV_MAJOR, "chdev");
+	unregister_chrdev(PXDEV_MAJOR, "sv_chdev");
 	device_destroy(chdev_class, MKDEV(PXDEV_MAJOR, 0));
 	class_destroy(chdev_class);
 }
