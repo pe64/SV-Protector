@@ -15,7 +15,7 @@ static int __init sv_protect_init(void)
 	chdev_init();
 	file_init();
 	process_init();
-	sv_netlink_init();
+	//sv_netlink_init();
 
 	return 0;
 }
@@ -25,7 +25,7 @@ static void __exit sv_protect_fini(void)
 	chdev_fini();
 	file_fini();
 	process_fini();
-	sv_netlink_fini();
+	//sv_netlink_fini();
 	printk("syscall intercept: bye, poor linux!\n");
 
 }

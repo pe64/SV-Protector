@@ -12,6 +12,8 @@
 #include <linux/fdtable.h>
 #include <linux/device.h>
 
+#include "priv.h"
+
 #define PXDEV_MAJOR	207
 
 static struct class *chdev_class;
@@ -65,7 +67,7 @@ static long
 chdev_ioctl(struct file *file, 
 		unsigned int cmd, unsigned long arg)
 {
-	return 0;
+	return svframe_invoke_syscall(cmd, (void __user *)arg);
 }
 
 static struct file_operations chdev_fops = {
@@ -94,4 +96,3 @@ void chdev_fini(void)
 	device_destroy(chdev_class, MKDEV(PXDEV_MAJOR, 0));
 	class_destroy(chdev_class);
 }
-

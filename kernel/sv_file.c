@@ -2,8 +2,8 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/gfp.h>
-#include <linux/slob_def.h>
 #include <linux/list.h>
+#include <linux/slab.h>
 #include <asm/uaccess.h>
 
 #include "sv_base.h"
@@ -18,7 +18,7 @@ static long (*system_compat_ioctl)(struct file *, unsigned int, unsigned long);
 static void init_svfile_list_node(svfile_list_st *node)
 {
 	memset(node, 0, sizeof(svfile_list_st));
-	INIT_LIST_HEAD(&node->list);
+	INIT_LIST_HEAD(&node->head);
 }
 
 static long 
@@ -57,26 +57,48 @@ get_file_operations(char *path)
 	}
 	
 	f_op = (struct file_operations *)filp->f_op;
-
 	filp_close(filp, 0);
 
 	return f_op;
 }
 
+static int check_file_inlist(ino_t inode, svfile_list_st **nodeptr)
+{
+	struct list_head* list;
+	svfile_list_st *node;
+
+	list_for_each(list, &s_svfile_head.head){
+		node = list_entry(list, svfile_list_st, head);
+		if(node->inode == inode){
+			if(nodeptr){
+				*nodeptr = node;
+			}
+			return SV_ERROR;
+		}
+	}
+
+	return SV_OK;
+}
+
 int svfile_add_protect_file(void *args)
 {
-	//printk("[%s][%d] file[%s]\n",__FILE__,__LINE__, args->file_name);
 	svfile_list_st *node;
-	svfile_set_st req;
+	svfile_set_st *req;
+	int ret;
 	
-	memcpy(&req, args, sizeof(req));
+	req = args;
 
 	if(!s_fops){
-		s_fops = get_file_operations(req.file_name);
+		s_fops = get_file_operations(req->file_name);
 		if(!s_fops){
 			return SV_ERROR;
 		}
 		replace_fops_ioctl(s_fops);
+	}
+
+	ret = check_file_inlist(req->inode, NULL);
+	if(ret != SV_OK){
+		return SV_ERROR;
 	}
 	
 	node = (svfile_list_st *)kmalloc(sizeof(svfile_list_st), GFP_KERNEL);
@@ -84,19 +106,38 @@ int svfile_add_protect_file(void *args)
 		printk("kmalloc error!!!!");
 		return SV_ERROR;
 	}
-
+	
 	init_svfile_list_node(node);
+	strcpy(node->name, req->file_name);
+	node->inode = req->inode;
+	strcpy(node->undo_process, req->undo_process);
+	
+	list_add(&node->head, &s_svfile_head.head);
 
 	return SV_OK;
 }
 
 int svfile_del_protect_file(void *args)
 {
-	svfile_set_st req;
-	
-	memcpy(&req, args, sizeof(req));
-	
-	return SV_OK;
+	svfile_set_st *req;
+	svfile_list_st *node;
+	int ret;
+
+	req = args;
+	node = NULL;
+
+	ret = check_file_inlist(req->inode, &node);
+	if(ret == SV_OK || !node){
+		return SV_ERROR;
+	}
+
+	if(!strcmp(node->undo_process, req->undo_process)){
+		list_del(&node->head);
+		kfree(node);
+		return SV_OK;
+	}
+
+	return SV_ERROR;
 }
 
 int svfile_list_protect_file(void *args)
@@ -112,7 +153,7 @@ static int (*sv_file_invoke_table[])(void *args) = {
 	svfile_list_protect_file,
 };
 
-int svfile_dealwith_entry(void *args)
+int svfile_dealwith_entry(void __user *args)
 {
 	sv_kernel_req_st req;
 	if(copy_from_user(&req, args, sizeof(req))){
@@ -128,13 +169,13 @@ int svfile_dealwith_entry(void *args)
 }
 
 sv_syscall_ops_st sv_file_ops = {
-	"svfile_opts",SV_FRAME_PROTECT_FILE,svfile_dealwith_entry,
+	"svfile_opts", SV_FRAME_PROTECT_FILE, svfile_dealwith_entry,
 };
 
 int file_init(void)
 {
 	svframe_register_kernel_syscall(&sv_file_ops);
-	INIT_LIST_HEAD(&s_svfile_head.list);
+	INIT_LIST_HEAD(&s_svfile_head.head);
 	return 0;
 }
 

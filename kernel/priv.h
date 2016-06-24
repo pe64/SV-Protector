@@ -10,12 +10,12 @@ typedef struct {
 }sv_syscall_ops_st;
 
 typedef struct {
-	struct list_head list;
+	struct list_head head;
 	char name[256];
 	ino_t inode;
 	int index;
 	int flags;
-	pid_t write_pid;
+	char undo_process[256];
 	time_t timestamps;
 }svfile_list_st;
 

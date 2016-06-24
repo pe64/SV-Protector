@@ -21,7 +21,7 @@ enum {
 typedef struct {
 	char file_name[256];
 	ino_t inode;
-	pid_t pid;
+	char undo_process[256];
 	int flags;
 }svfile_set_st;
 
