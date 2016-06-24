@@ -4,11 +4,11 @@
 #include <linux/netlink.h>
 #include <string.h>
 
-#include <sv_netlink.h>
 #include <sv_base.h>
 
 #include "priv.h"
 
+#if 0
 static int syscall_handle;
 
 int sv_syscall_init(void)
@@ -60,7 +60,6 @@ int sv_syscall_invoke(int cid, void *args, size_t size)
 		nlh = NLMSG_NEXT(nlh, len);
 	}
 }
-#if 0
 static void recv_from_nl()
 {
 

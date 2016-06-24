@@ -1,6 +1,6 @@
 
 EXTRA_CFLAGS += -I/root/github/SV-Protector/include
-
+EXTRA_CFLAGS += -DSVFILE_KERNEL
 obj-m += sv_protect.o
 sv_protect-objs := sv_control.o sv_process.o sv_file.o sv_frame.o sv_chdrv.o
 #generate the path

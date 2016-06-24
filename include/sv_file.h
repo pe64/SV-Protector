@@ -2,9 +2,13 @@
 #define SV_FILE_H
 
 //#include <linux/list.h>
+#ifdef SVFILE_KERNEL
+#include <linux/types.h>
+#include <linux/coda.h>
+#else
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <linux/coda.h>
+#endif
 
 enum {
 	SV_FILE_REQ_START,
