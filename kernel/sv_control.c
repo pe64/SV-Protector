@@ -299,6 +299,7 @@ static int __init sv_protect_init(void)
 {
 	//int ret;
 	printk("syscall intercept: Hi, poor linux!\n");
+	chdev_init();
 	file_init();
 	process_init();
 	sv_netlink_init();
@@ -312,6 +313,7 @@ static int __init sv_protect_init(void)
 
 static void __exit sv_protect_fini(void)
 {
+	chdev_fini();
 	file_fini();
 	process_fini();
 	sv_netlink_fini();

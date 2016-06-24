@@ -27,5 +27,7 @@ extern int sv_netlink_init(void);
 extern int svframe_invoke_syscall(int cid, void *args);
 extern void svframe_register_kernel_syscall(sv_syscall_ops_st *node);
 extern void sv_netlink_fini(void);
+extern int chdev_init(void);
+extern void chdev_fini(void);
 
 #endif
