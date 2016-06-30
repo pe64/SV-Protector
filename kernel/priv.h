@@ -1,6 +1,8 @@
 #ifndef PRIV_H
 #define PRIV_H
 
+#include <sv_file.h>
+
 typedef int (*KERNEL_SYSCALL_PROC)(void *args);
 
 typedef struct {
@@ -11,11 +13,12 @@ typedef struct {
 
 typedef struct {
 	struct list_head head;
-	char name[256];
+	char name[MAX_FILE_NAME_LEN];
 	ino_t inode;
 	int index;
 	int flags;
-	char password[256];
+	char path[MAX_FILE_NAME_LEN];
+	char password[MAX_PASSWORD_LEN];
 	time_t timestamps;
 }svfile_list_st;
 

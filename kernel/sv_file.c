@@ -15,6 +15,9 @@
 #define GET_FILE_INODE(filp) \
 	(filp->f_path.dentry->d_inode->i_ino)
 
+#define GET_FILE_OPERATIONS(filp) \
+	((struct file_operations *)(filp->f_op))
+
 static svfile_list_st s_svfile_head;
 static struct file_operations *s_fops;
 static long (*system_unlock_ioctl)(struct file *, unsigned int, unsigned long);
@@ -77,68 +80,68 @@ replace_fops_ioctl(struct file_operations *f_op)
 	}
 }
 
-static struct file_operations *
-get_file_operations(char *path)
-{
-	struct file *filp;
-	struct file_operations *f_op;
-	filp = filp_open(path, O_RDWR, 0644);
-	if(IS_ERR(filp)){
-		return NULL;
-	}
-	
-	f_op = (struct file_operations *)filp->f_op;
-	filp_close(filp, 0);
-
-	return f_op;
-}
-
 int svfile_add_protect_file(void *args)
 {
 	svfile_list_st *node;
 	svfile_set_st *req;
+	char *name;
 	struct file *filp;
-	int cmd = 0;
-	int arg = 0;
-	int ret;
+	//int cmd = 0;
+	//int arg = 0;
+	int ret = SV_OK;
 	
 	req = args;
-
-	if(!s_fops){
-		s_fops = get_file_operations(req->file_name);
-		if(!s_fops){
-			return SV_ERROR;
-		}
-		replace_fops_ioctl(s_fops);
-	}
-
 	ret = check_file_inlist(req->inode, NULL);
 	if(ret != SV_OK){
-		return SV_ERROR;
+		ret = SV_ERROR;
+		goto check_err;
 	}
 
-	node = (svfile_list_st *)kmalloc(sizeof(svfile_list_st), GFP_KERNEL);
+	node = kmalloc(sizeof(svfile_list_st), GFP_KERNEL);
 	if(node){
 		printk("kmalloc error!!!!");
-		return SV_ERROR;
+		ret = SV_ERROR;
+		goto check_err;
 	}
 	
 	init_svfile_list_node(node);
-	//TODO:modify d_path() function to get file name.
-	strcpy(node->name, req->file_name);
+	//strcpy(node->name, req->file_name);
 	node->inode = req->inode;
 	strcpy(node->password, req->password);
 	filp = fget(req->fd);
-	if(filp){
-		//TODO:lock file args.
-		system_unlock_ioctl(filp, cmd, (unsigned long)&arg);
+	if(!filp){
+		ret = SV_ERROR;
+		goto fget_err;
 	}
+	if(!s_fops){
+		s_fops = GET_FILE_OPERATIONS(filp);
+		if(!s_fops){
+			goto fop_err;
+		}
+		replace_fops_ioctl(s_fops);
+	}
+	name = d_path(&filp->f_path, 
+			node->path, sizeof(node->path));
+	printk("file:%s,line:%d,func:%s\nname[%s],path[%s]\n",
+			__FILE__,__LINE__,__func__,name,node->path); 
+	
+	strcpy(node->name, name);
+	//TODO:lock file args.
+	//system_unlock_ioctl(filp, cmd, (unsigned long)&arg);
 	fput(filp);
+
 	write_lock(&lock);
 	list_add(&node->head, &s_svfile_head.head);
 	write_unlock(&lock);
 
-	return SV_OK;
+	return ret;
+
+fop_err:
+	fput(filp);
+fget_err:
+	kfree(node);
+check_err:
+	return ret;
 }
 
 int svfile_del_protect_file(void *args)

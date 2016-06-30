@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #endif
 
+#define MAX_FILE_NAME_LEN 256
+#define MAX_PASSWORD_LEN 256
 enum {
 	SV_FILE_REQ_START,
 	SV_FILE_REQ_ADD,
@@ -20,14 +22,13 @@ enum {
 
 typedef struct {
 	int fd;
-	char file_name[256];
 	ino_t inode;
-	char password[256];
+	char password[MAX_PASSWORD_LEN];
 	int flags;
 }svfile_set_st;
 
 typedef struct {
-	char file_name[256];
+	char file_name[MAX_FILE_NAME_LEN];
 	ino_t inode;
 	void *next;
 }svfile_get_st;
