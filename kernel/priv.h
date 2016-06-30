@@ -15,7 +15,7 @@ typedef struct {
 	ino_t inode;
 	int index;
 	int flags;
-	char undo_process[256];
+	char password[256];
 	time_t timestamps;
 }svfile_list_st;
 

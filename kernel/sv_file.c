@@ -5,15 +5,22 @@
 #include <linux/list.h>
 #include <linux/slab.h>
 #include <asm/uaccess.h>
+#include <linux/spinlock_types.h>
+#include <linux/file.h>
 
 #include "sv_base.h"
 #include "sv_frame.h"
 #include "priv.h"
 
+#define GET_FILE_INODE(filp) \
+	(filp->f_path.dentry->d_inode->i_ino)
+
 static svfile_list_st s_svfile_head;
 static struct file_operations *s_fops;
 static long (*system_unlock_ioctl)(struct file *, unsigned int, unsigned long);
 static long (*system_compat_ioctl)(struct file *, unsigned int, unsigned long);
+
+rwlock_t lock;
 
 static void init_svfile_list_node(svfile_list_st *node)
 {
@@ -21,10 +28,34 @@ static void init_svfile_list_node(svfile_list_st *node)
 	INIT_LIST_HEAD(&node->head);
 }
 
+static int check_file_inlist(ino_t inode, svfile_list_st **nodeptr)
+{
+	struct list_head* list;
+	svfile_list_st *node;
+	read_lock(&lock);
+	list_for_each(list, &s_svfile_head.head){
+		node = list_entry(list, svfile_list_st, head);
+		if(node->inode == inode){
+			if(nodeptr){
+				*nodeptr = node;
+			}
+			read_unlock(&lock);
+			return SV_ERROR;
+		}
+	}
+	read_unlock(&lock);
+	return SV_OK;
+}
+
 static long 
 sv_file_protect_unlock_ioctl(struct file *filp, 
 		unsigned int cmd, unsigned long arg)
 {
+	int ret;
+	ret = check_file_inlist(GET_FILE_INODE(filp), NULL);
+	if(ret == SV_OK && cmd ){
+		
+	}
 	return system_unlock_ioctl(filp, cmd, arg);
 }
 
@@ -62,28 +93,13 @@ get_file_operations(char *path)
 	return f_op;
 }
 
-static int check_file_inlist(ino_t inode, svfile_list_st **nodeptr)
-{
-	struct list_head* list;
-	svfile_list_st *node;
-
-	list_for_each(list, &s_svfile_head.head){
-		node = list_entry(list, svfile_list_st, head);
-		if(node->inode == inode){
-			if(nodeptr){
-				*nodeptr = node;
-			}
-			return SV_ERROR;
-		}
-	}
-
-	return SV_OK;
-}
-
 int svfile_add_protect_file(void *args)
 {
 	svfile_list_st *node;
 	svfile_set_st *req;
+	struct file *filp;
+	int cmd = 0;
+	int arg = 0;
 	int ret;
 	
 	req = args;
@@ -100,7 +116,7 @@ int svfile_add_protect_file(void *args)
 	if(ret != SV_OK){
 		return SV_ERROR;
 	}
-	
+
 	node = (svfile_list_st *)kmalloc(sizeof(svfile_list_st), GFP_KERNEL);
 	if(node){
 		printk("kmalloc error!!!!");
@@ -108,11 +124,19 @@ int svfile_add_protect_file(void *args)
 	}
 	
 	init_svfile_list_node(node);
+	//TODO:modify d_path() function to get file name.
 	strcpy(node->name, req->file_name);
 	node->inode = req->inode;
-	strcpy(node->undo_process, req->undo_process);
-	
+	strcpy(node->password, req->password);
+	filp = fget(req->fd);
+	if(filp){
+		//TODO:lock file args.
+		system_unlock_ioctl(filp, cmd, (unsigned long)&arg);
+	}
+	fput(filp);
+	write_lock(&lock);
 	list_add(&node->head, &s_svfile_head.head);
+	write_unlock(&lock);
 
 	return SV_OK;
 }
@@ -131,11 +155,14 @@ int svfile_del_protect_file(void *args)
 		return SV_ERROR;
 	}
 
-	if(!strcmp(node->undo_process, req->undo_process)){
+	write_lock(&lock);
+	if(!strcmp(node->password, req->password)){
 		list_del(&node->head);
 		kfree(node);
+		write_unlock(&lock);
 		return SV_OK;
 	}
+	write_unlock(&lock);
 
 	return SV_ERROR;
 }
@@ -176,6 +203,7 @@ int file_init(void)
 {
 	svframe_register_kernel_syscall(&sv_file_ops);
 	INIT_LIST_HEAD(&s_svfile_head.head);
+	rwlock_init(&lock);
 	return 0;
 }
 

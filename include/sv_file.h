@@ -19,9 +19,10 @@ enum {
 };
 
 typedef struct {
+	int fd;
 	char file_name[256];
 	ino_t inode;
-	char undo_process[256];
+	char password[256];
 	int flags;
 }svfile_set_st;
 
