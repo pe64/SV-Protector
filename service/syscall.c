@@ -3,14 +3,40 @@
 #include <asm/types.h>
 #include <linux/netlink.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <sv_base.h>
 
 #include "priv.h"
+#define CHDEV_PATH "/dev/sv_chdev"
 
-#if 0
 static int syscall_handle;
 
+int sv_syscall_init(void)
+{
+	if(syscall_handle <= 0){
+		syscall_handle = open(CHDEV_PATH, O_RDWR);
+		if(syscall_handle <=0 ){
+			return SV_ERROR;
+		}
+	}
+	return SV_OK;
+}
+
+int sv_syscall_invoke(int syscall_id, void *args)
+{
+	int ret;
+	
+	if(syscall_handle <= 0){
+		return SV_ERROR;
+	}
+	
+	return ioctl(syscall_handle, syscall_id, args);
+}
+
+#if 0
 int sv_syscall_init(void)
 {
 	struct sockaddr_nl *addr;

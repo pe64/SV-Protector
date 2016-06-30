@@ -89,7 +89,8 @@ int svfile_add_protect_file(void *args)
 	//int cmd = 0;
 	//int arg = 0;
 	int ret = SV_OK;
-	
+		
+	printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__); 
 	req = args;
 	ret = check_file_inlist(req->inode, NULL);
 	if(ret != SV_OK){
@@ -98,7 +99,7 @@ int svfile_add_protect_file(void *args)
 	}
 
 	node = kmalloc(sizeof(svfile_list_st), GFP_KERNEL);
-	if(node){
+	if(!node){
 		printk("kmalloc error!!!!");
 		ret = SV_ERROR;
 		goto check_err;
@@ -177,7 +178,12 @@ int svfile_list_protect_file(void *args)
 	return SV_OK;
 }
 
+static int svfile_protect_err(void *args)
+{
+	return SV_ERROR;
+}
 static int (*sv_file_invoke_table[])(void *args) = {
+	svfile_protect_err,
 	svfile_add_protect_file,
 	svfile_del_protect_file,
 	svfile_list_protect_file,
@@ -186,11 +192,13 @@ static int (*sv_file_invoke_table[])(void *args) = {
 int svfile_dealwith_entry(void __user *args)
 {
 	sv_kernel_req_st req;
+	printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__); 
 	if(copy_from_user(&req, args, sizeof(req))){
 		printk("file:%s,line:%d,func:%s,get req error!!!!\n",__FILE__,__LINE__,__func__); 
 		return SV_ERROR;
 	}
 
+	printk("file:%s,line:%d,func:%s,module_cmd[%d]\n",__FILE__,__LINE__,__func__,req.module_cmd); 
 	if(req.module_cmd > SV_FILE_REQ_START && req.module_cmd < SV_FILE_REQ_MAX){
 		return sv_file_invoke_table[req.module_cmd](&req.pos);
 	}

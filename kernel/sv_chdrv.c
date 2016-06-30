@@ -67,6 +67,7 @@ static long
 chdev_ioctl(struct file *file, 
 		unsigned int cmd, unsigned long arg)
 {
+	printk("file:%s,line:%d,func:%s,cmd[%d]\n",__FILE__,__LINE__,__func__,cmd); 
 	return svframe_invoke_syscall(cmd, (void __user *)arg);
 }
 
