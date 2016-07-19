@@ -12,7 +12,7 @@
 #include "sv_frame.h"
 #include "priv.h"
 
-#define GET_FILE_INODE(filp) \
+#define GET_FILE_INODE_ID(filp) \
 	(filp->f_path.dentry->d_inode->i_ino)
 
 #define GET_FILE_OPERATIONS(filp) \
@@ -55,10 +55,13 @@ sv_file_protect_unlock_ioctl(struct file *filp,
 		unsigned int cmd, unsigned long arg)
 {
 	int ret;
-	ret = check_file_inlist(GET_FILE_INODE(filp), NULL);
-	if(ret == SV_OK && cmd ){
-		
+	ret = check_file_inlist(GET_FILE_INODE_ID(filp), NULL);
+	if(ret == SV_OK 
+			&& (cmd & FS_IOC_SETFLAGS) 
+			&& !(arg & FS_IMMUTABLE_FL)){
+		return SV_ERROR;
 	}
+
 	return system_unlock_ioctl(filp, cmd, arg);
 }
 
@@ -66,6 +69,14 @@ static long
 sv_file_protect_compat_ioctl(struct file *filp, 
 		unsigned int cmd, unsigned long arg)
 {
+	int ret;
+	ret = check_file_inlist(GET_FILE_INODE_ID(filp), NULL);
+	if(ret == SV_OK
+			&& (cmd & FS_IOC_SETFLAGS)
+			&& !(arg & FS_IMMUTABLE_FL)){
+		return SV_ERROR;
+	}
+
 	return system_compat_ioctl(filp, cmd, arg);
 }
 
@@ -86,11 +97,8 @@ int svfile_add_protect_file(void *args)
 	svfile_set_st *req;
 	char *name;
 	struct file *filp;
-	//int cmd = 0;
-	//int arg = 0;
 	int ret = SV_OK;
 		
-	printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__); 
 	req = args;
 	ret = check_file_inlist(req->inode, NULL);
 	if(ret != SV_OK){
@@ -123,12 +131,10 @@ int svfile_add_protect_file(void *args)
 	}
 	name = d_path(&filp->f_path, 
 			node->path, sizeof(node->path));
-	printk("file:%s,line:%d,func:%s\nname[%s],path[%s]\n",
-			__FILE__,__LINE__,__func__,name,node->path); 
 	
 	strcpy(node->name, name);
 	//TODO:lock file args.
-	//system_unlock_ioctl(filp, cmd, (unsigned long)&arg);
+	system_unlock_ioctl(filp, , (unsigned long)&arg);
 	fput(filp);
 
 	write_lock(&lock);
@@ -192,13 +198,11 @@ static int (*sv_file_invoke_table[])(void *args) = {
 int svfile_dealwith_entry(void __user *args)
 {
 	sv_kernel_req_st req;
-	printk("file:%s,line:%d,func:%s\n",__FILE__,__LINE__,__func__); 
 	if(copy_from_user(&req, args, sizeof(req))){
 		printk("file:%s,line:%d,func:%s,get req error!!!!\n",__FILE__,__LINE__,__func__); 
 		return SV_ERROR;
 	}
 
-	printk("file:%s,line:%d,func:%s,module_cmd[%d]\n",__FILE__,__LINE__,__func__,req.module_cmd); 
 	if(req.module_cmd > SV_FILE_REQ_START && req.module_cmd < SV_FILE_REQ_MAX){
 		return sv_file_invoke_table[req.module_cmd](&req.pos);
 	}
